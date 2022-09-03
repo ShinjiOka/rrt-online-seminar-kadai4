@@ -1,7 +1,8 @@
 import type { FC } from 'react';
-import { useAppDispatch } from '../../../app/hooks';
+import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { remove, update, restore } from '../todosSlice';
 import type { Todo } from '../types';
+import { useConfirmModal } from './modals/ConfirmModal/useConfirmModal';
 
 type Props = {
   todos: Todo[]
@@ -10,11 +11,19 @@ type Props = {
 const TodosList: FC<Props> = ({todos}) => {
   // const todos = useAppSelector((state: RootState) => state.todos.todos);
   // const todos = useAppSelector(selectTodos);
-  
+  const displayStatus = useAppSelector((state) => state.todos.displayStatus);
   const dispatch = useAppDispatch();
+  const {
+    open: openConfirmModal,
+    setMessage,
+    ConfirmModalWrapper,
+  } = useConfirmModal();
+
+  const isSelectDeletedStatus = displayStatus === 'deleted';
   
   return (
     <>
+      <ConfirmModalWrapper />
       <table border={1}>
         <thead>
           <tr>
@@ -68,7 +77,8 @@ const TodosList: FC<Props> = ({todos}) => {
                     {isDeletedTodo(todo) ? (
                       <button
                       onClick={() => {
-                        dispatch(restore(todo.id));
+                        setMessage('復元しますか？')
+                        openConfirmModal(() => dispatch(restore(todo.id)));
                       }}
                     >
                       復元
@@ -76,7 +86,8 @@ const TodosList: FC<Props> = ({todos}) => {
                     ) : (
                       <button
                       onClick={() => {
-                        dispatch(remove(todo.id));
+                        setMessage('本当に削除しますか？')
+                        openConfirmModal(() => dispatch(remove(todo.id)));
                       }}
                     >
                       削除
