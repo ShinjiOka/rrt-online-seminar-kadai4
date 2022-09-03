@@ -3,6 +3,8 @@ import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { remove, update, restore } from '../todosSlice';
 import type { Todo } from '../types';
 import { useConfirmModal } from './modals/ConfirmModal/useConfirmModal';
+import { useUpdateTodoModal } from './modals/UpdateTodoModal/useUpdateTodoModal';
+import { translateStatus } from '../utils/todoConverter';
 
 type Props = {
   todos: Todo[]
@@ -18,12 +20,18 @@ const TodosList: FC<Props> = ({todos}) => {
     setMessage,
     ConfirmModalWrapper,
   } = useConfirmModal();
+  const {
+    open: openUpdateTodoModal,
+    setTodoInput: setTodoInputForUpdateTodoModal,
+    UpdateTodoModalWrapper,
+  } = useUpdateTodoModal();
 
   const isSelectDeletedStatus = displayStatus === 'deleted';
   
   return (
     <>
       <ConfirmModalWrapper />
+      <UpdateTodoModalWrapper />
       <table border={1}>
         <thead>
           <tr>
@@ -52,7 +60,7 @@ const TodosList: FC<Props> = ({todos}) => {
                   <td>{todo.id}</td>
                   <td>{todo.title}</td>
                   <td>{todo.body}</td>
-                  <td>{todo.status}</td>
+                  <td>{translateStatus(todo.status)}</td>
                   <td>{todo.createdAt}</td>
                   <td>{todo.updatedAt ?? '無し'}</td>
                   <td>{todo.deletedAt ?? '無し'}</td>
@@ -60,14 +68,16 @@ const TodosList: FC<Props> = ({todos}) => {
                     <button
                       disabled={isDeletedTodo(todo)}
                       onClick={() => {
-                        dispatch(update({
-                          id: todo.id,
-                          input: {
-                            title: '更新したtitle' + Date.now(),
-                            body: '更新したbody' + Date.now(),
-                            status: 'completed',
-                          }
-                        }))
+                        setTodoInputForUpdateTodoModal(todo);
+                        openUpdateTodoModal((newTodoInput) => {
+                          const updateAction = update({
+                            id: todo.id,
+                            input: {
+                              ...newTodoInput,
+                            },
+                          });
+                          dispatch(updateAction);
+                        });
                       }}
                     >
                       更新

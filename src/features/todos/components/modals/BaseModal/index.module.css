@@ -9,22 +9,22 @@
   justify-content: center;
   align-items: center;
   z-index: 10;
-  animation: fadein 0.3s;
+  animation:fadein 0.3s;
 }
 
 @keyframes fadein {
-  from {
-    opacity:0;
-  }
-  to {
-    opacity:1;
-  }
+	from {
+		opacity:0;
+	}
+	to {
+		opacity:1;
+	}
 }
 
 .modalContainer {
   background-color: #ffffff;
   display: flex;
-  flex-direction: colum;
+  flex-direction: column;
   align-items: center;
   width: fit-content;
   word-break: break-all;
